@@ -19,6 +19,7 @@ DisplayInfo();
 addbtnSubject.onclick = () => {
   const name = addInputVlaue.value;
   const date = dueDate.value;
+  let dateObject = new Date(date);
 
   for (const radio of radios) {
     if (radio.checked) {
