@@ -1,24 +1,18 @@
-// DOM elements
 const addbtnSubject = document.getElementById("addBtn");
+const btnText = addbtnSubject.innerText;
 const addInputValue = document.getElementById("subject");
 const tableDataDisplay = document.getElementById("tableData");
 const radios = document.getElementsByName("type");
 const dueDate = document.getElementById("due-date");
-
-// Data storage
 let data_array = [];
 let edit_id = null;
 
-// Retrieve data from localStorage on page load
 let objStr = localStorage.getItem("users");
 if (objStr) {
   data_array = JSON.parse(objStr);
 }
-
-// Display initial data
 DisplayInfo();
 
-// Event handler for add/edit button click
 addbtnSubject.onclick = () => {
   const name = addInputValue.value;
   const date = dueDate.value;
@@ -37,10 +31,9 @@ addbtnSubject.onclick = () => {
   const isRadioValid = validateRadioSelection(radios);
 
   if (!isNameValid || !isDateValid || !isRadioValid) {
-    return; // Exit function if any validation fails
+    return;
   }
-
-  // Edit Data if edit_id is set, otherwise insert Data
+  //Edit Data
   if (edit_id != null) {
     data_array.splice(edit_id, 1, {
       name: name,
@@ -49,36 +42,37 @@ addbtnSubject.onclick = () => {
     });
     edit_id = null;
   } else {
+    //insert Data
     data_array.push({
       name: name,
       selectedValue: selectedValue,
       date: date,
       completed: false,
     });
+    //data_array.push({ name: name, selectedValue: selectedValue, date: date });
   }
 
-  // Save data to localStorage, update display, and clear fields
   SaveInfo(data_array);
+  // after add data this field clear
   addInputValue.value = "";
-  addbtnSubject.innerText = btnText; // Reset button text
+  // change button text add and edit functionality
+  addbtnSubject.innerText = btnText;
 };
 
-// Function to save data to localStorage and update display
 function SaveInfo(data_array) {
+  //after add data save the data
   let str = JSON.stringify(data_array);
   localStorage.setItem("users", str);
-  DisplayInfo(); // Update displayed data
-  ClearAllFields(); // Clear input fields
+  DisplayInfo();
+  ClearAllFields();
 }
 
-// Function to clear all input fields
 function ClearAllFields() {
+  //after add data this function clear data
   addInputValue.value = "";
   radios.forEach((radio) => (radio.checked = false));
   dueDate.value = "";
 }
-
-// Function to display data in the table
 function DisplayInfo() {
   let statement = "";
   data_array.forEach((user, i) => {
@@ -100,14 +94,13 @@ function DisplayInfo() {
   tableDataDisplay.innerHTML = statement;
 }
 
-// Function to mark a task as completed
 function MarkCompleted(id) {
   data_array[id].completed = true;
   SaveInfo(data_array);
 }
 
-// Function to populate fields for editing a task
 function EditInfo(id) {
+  // edit function
   edit_id = id;
   addInputValue.value = data_array[id].name;
   radios.forEach((radio) => {
@@ -116,20 +109,22 @@ function EditInfo(id) {
     }
   });
   dueDate.value = data_array[id].date;
-  addbtnSubject.innerText = "Save Changes"; // Change button text for edit mode
+  addbtnSubject.innerText = "Save Changes";
 }
 
-// Function to delete a task
 function DeleteInfo(id) {
+  //delete function
+
   data_array.splice(id, 1);
   SaveInfo(data_array);
 }
 
-// Validation function for name field
 function validateName(name) {
+  // validation for the name field
   const errorElement = document.getElementById("nameError");
   if (name.trim() === "") {
     errorElement.innerText = "Name cannot be empty.";
+    // error msg
     return false;
   } else {
     errorElement.innerText = "";
@@ -137,11 +132,12 @@ function validateName(name) {
   }
 }
 
-// Validation function for date field
 function validateDate(date) {
+  //validation for the date field
   const errorElement = document.getElementById("dateError");
   if (date.trim() === "") {
     errorElement.innerText = "Please select a valid due date.";
+    // error msg
     return false;
   } else {
     errorElement.innerText = "";
@@ -149,8 +145,8 @@ function validateDate(date) {
   }
 }
 
-// Validation function for radio button selection
 function validateRadioSelection(radios) {
+  // validation for the radio button
   const errorElement = document.getElementById("typeError");
   for (const radio of radios) {
     if (radio.checked) {
@@ -159,21 +155,6 @@ function validateRadioSelection(radios) {
     }
   }
   errorElement.innerText = "Please select a type.";
+  // error msg
   return false;
 }
-
-// Event listener for filtering tasks by priority
-const querySelect = document.querySelectorAll("#tableData tr");
-const filterData = document.querySelector("#priority-filter");
-filterData.addEventListener("input", function (e) {
-  const srcData = e.target.value;
-  tableDataDisplay.innerHTML = ""; // Clear current table content
-
-  querySelect.forEach((tr) => {
-    const td_data = tr.querySelectorAll("td");
-    console.log(td_data);
-    if (td_data[1].innerText.indexOf(srcData) > -1) {
-      tableDataDisplay.appendChild(tr); // Append matching rows back to the table
-    }
-  });
-});
